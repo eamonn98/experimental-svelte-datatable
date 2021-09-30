@@ -19,7 +19,7 @@
             let aVal = a[columnIndex] !== undefined ? a[columnIndex] : 0;
             let bVal = b[columnIndex] !== undefined ? b[columnIndex] : 0;
 
-            console.log(`${aVal}, ${bVal}`);
+            console.log(`${columnIndex}: ${aVal}, ${bVal} ${(aVal <= bVal ? (1 * ascValue) : (-1 * ascValue))}`);
             if(aVal === bVal)
                 return 0;
 
@@ -55,6 +55,21 @@
         }
     }
 
+    let handleRowSelection = (rowIndex, colIndex, newValue) => {
+        // let selectedItem = {rowIndex, colIndex};
+        // let selectedIndex = manager.selected.indexOf(selectedItem);
+
+        // if(newValue === false && selectedIndex > -1) {
+        //     manager.selected.splice(selectedIndex);
+        // } else if(newValue === true && selectedIndex === -1) {
+        //     manager.selected.push(selectedItem)
+        // }
+
+        rows[rowIndex][colIndex] = newValue;
+
+        fireUpdateEvent(rowIndex, colIndex, newValue);
+    }
+
     let handleSort = (event, colIndex) => {
         manager.sortBy(colIndex);
 
@@ -66,9 +81,11 @@
 
 <style type="text/css">
     table{font-size:12px;color:#333333;width:100%;border-width: 1px;border-color: #729ea5;border-collapse: collapse;}
-    th {font-size:12px;background-color:#acc8cc;border-width: 1px;padding: 8px;border-style: solid;border-color: #729ea5;text-align:left;}
+    th {font-size:12px;background-color:#acc8cc;border-width: 1px;padding: 1px;border-style: solid;border-color: #729ea5;text-align:center;}
     tr {background-color:#ffffff;}
-    td {font-size:12px;border-width: 1px;padding: 8px;border-style: solid;border-color: #729ea5;}
+    td {font-size:12px;border-width: 1px;padding: 1px;border-style: solid;border-color: #729ea5; text-align: left}
+    .editable-cell {border: none; height: 100%; width: 100%; margin: 0}
+    .checkbox-cell {text-align: center;}
     tr:hover {background-color:#ffff99;}
 </style>
 
@@ -82,7 +99,7 @@
                 <th on:click={(event) => handleSort(event, colIndex)}>
                     <div class="datatable-header-label">{column.label} 
                         {#if manager.sortIndex === colIndex}
-                            <button class="datatable-sort-button" >{manager.sortDirection}</button>
+                            <span>{manager.sortDirection === 'asc' ? '↓' : '↑'}</span>
                         {/if}
                     </div>
                 </th>
@@ -99,15 +116,17 @@
             <tr>
                 {#each row as col, i}
                     {#if columns[i]['visible'] !== false}
-                    <td>
                         {#if columns[i]['type'] !== 'checkbox' && columns[i]['editable'] === true }
-                            <input type="text" value={col} on:input={(event) => fireUpdateEvent(rowIndex, i, event.target.value)}>
+                            <td>
+                                <input class="editable-cell" type="text" value={col} on:input={(event) => fireUpdateEvent(rowIndex, i, event.target.value)}>
+                            </td>
                         {:else if columns[i]['type'] === 'checkbox'}
-                            <input type="checkbox" id={'checkbox' + i} on:change={(event) => fireUpdateEvent(rowIndex, i, event.target.checked)}>
+                            <td class="checkbox-cell">
+                                <input  checked={col} type="checkbox" id={'checkbox' + i} on:change={(event) => handleRowSelection(rowIndex, i, event.target.checked)}>
+                            </td>
                         {:else}
-                            {col}
+                            <td>{col}</td>
                         {/if}
-                    </td>
                     {/if}
                 {/each}
             </tr>

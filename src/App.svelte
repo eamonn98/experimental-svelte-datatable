@@ -21,6 +21,9 @@
 
 	let gridManager;
 
+	let printSelected = (event) => {
+		console.log(data.filter(n => n[4] === true));
+	}
 
     onMount(async() => {
 		gridManager.on('update', (row, col, updatedValue) => {
@@ -40,6 +43,8 @@
 	<DataTable columns={cols} rows={data} bind:manager={gridManager} />
 	<br> 
 	<button on:click={() => console.log(gridManager)}>Data to console</button>
+	<br>
+	<button on:click={printSelected}>Print Selected</button>
 </main>
 
 <style>
